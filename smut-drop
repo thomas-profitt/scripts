@@ -1,20 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'shellwords'
-require 'resolv'
 require 'fileutils'
-require 'pathname'
-
-user = "tom"
-host = "owlbear"
-smut_path = Pathname.new("/home/tom/.porn/Unsorted")
-
-begin
-  Resolv.getaddress host
-rescue Resolv::ResolvError
-  puts "Unable to resolve hostname \"#{host}\"; aborting"
-  abort
-end
 
 user = "tom"
 host = "owlbear"
@@ -33,7 +20,10 @@ ARGV.each do |fn|
     next
   end
 
-  `scp #{Shellwords.shellescape fn} #{user}@#{host}:#{Shellwords.shellescape(smut_path + fn)}`
+  shell_fn = Shellwords.shellescape fn
+  shell_fn_basename = Shellwords.shellescape File.basename(fn)
+
+  `scp #{shell_fn} tom@owlbear:/home/tom/.porn/Unsorted/#{shell_fn_basename}`
 
   puts "removing #{fn}"
   FileUtils.rm fn
