@@ -1,0 +1,130 @@
+#!/usr/bin/env ruby
+
+require 'digest/md5'
+require 'colorize'
+require_relative 'lib/terminal_formatting'
+include TerminalFormatting
+
+hash_random = Random.new(Digest::MD5.hexdigest(File.read(ARGV[0])).hex.to_i)
+
+needles = %w[! ! + ^]
+ornaments = %w[@ o {} % G C]
+string_segments = %w[#]
+lights = %w[*]
+
+stocking = [
+  " [###]",
+  "  ]  |",
+  "(___/ "
+]
+
+bow = [
+  "(\m/)",
+  "//*\\"
+]
+
+candy_cane = [
+  " _ ",
+  "( |",
+  "  |",
+  "  |"
+]
+
+upturned_stocking = [
+  "  ___ ",
+  " /   )",
+  "|  [  ",
+  "[###] "
+]
+
+star = [
+  "  /\  ",
+  "< -- >",
+  " \/\/ "
+]
+
+train = [
+  "   oo~o~  ____ ",
+  "  _][_n_n_|00[ ",
+  "c(___##_##| +| ",
+   "// oo-OOO oo ="
+]
+
+tall_present = [
+  " (\/) ",
+  "[____]",
+  "|    |",
+  "|____|"
+]
+
+short_present = [
+  " (\*/) ",
+  "[_____]",
+  "|_____|"
+]
+
+characters_needed = 2
+growth_multiplier = 1.0
+
+short_row_every = [3, 4, 7][hash_random.rand(3)]
+
+22.times do |i|
+  short_row = false
+
+  if (i + 1) % short_row_every == 0
+    short_row = true
+    growth_multiplier += 0.25
+    characters_needed = 6 * growth_multiplier
+  end
+
+  characters_to_print = characters_needed * growth_multiplier
+  # Round to nearest multiple of 2
+  characters_to_print = (characters_to_print / 2.0).round * 2
+
+  # BEGIN build the row
+  row = ""
+
+  while characters_to_print > 0 do
+    old_row_length = row.length
+    if hash_random.rand(100) <= 10
+      # Ornament
+      row += ornaments[hash_random.rand(ornaments.length)]
+    elsif hash_random.rand(100) <= 10
+      row += lights[hash_random.rand(lights.length)]
+    else
+      row += needles[hash_random.rand(needles.length)]
+    end
+
+    new_row_length = row.length
+    characters_to_print -= new_row_length - old_row_length
+  end
+
+  row = center(row)
+
+  # Paint each needle green
+  needles.each do |character|
+    row = row.gsub character, character.green
+  end
+
+  # Colorize ornaments
+  ornaments.each do |ornament|
+    row = row.gsub(ornament) do |m|
+      ornament.send([:red, :yellow, :to_s][hash_random.rand(3)])
+    end
+  end
+
+  # Colorize lights
+  lights.each do |light|
+    row = row.gsub(light) do
+      light.send([:red, :blue, :to_s][hash_random.rand(3)])
+    end
+  end
+
+  puts row
+  # BEGIN build the row
+
+  characters_needed += 2
+
+end
+
+puts center("|__|").yellow

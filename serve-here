@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+
+require 'webrick'
+require 'socket'
+require 'optparse'
+require 'resolv'
+require_relative 'lib/terminal_formatting' and include TerminalFormatting
+
+
+# BEGIN options ****************************************************************
+default_bind_address =
+  Socket.ip_address_list.
+  map(&:ip_address).
+  select { |addr|
+    addr =~ /192\.168\.*\.*/ or
+    addr =~ /10\.*\.*\.*/ or
+    addr =~ /172\.( 1[6-9] | 2\d | 3[0-1] )\.*\.*/x
+  }.
+  first
+
+default_document_root = Dir.pwd
+
+default_options = {
+  port:8000,
+  bind_address:default_bind_address,
+  document_root:default_document_root,
+  localhost:false
+}
+options = default_options
+
+OptionParser.new do |opts|
+  opts.banner =
+    ["Usage: serve-here [options]",
+    "Starts a WEBrick HTTP server from the current directory"].
+    join "\n"
+
+  opts.on("-p N", "--port N", "Run on Port N (default: 8000)") do |p|
+    options[:port] = p
+  end
+
+  opts.on("-b N", "--bind-address N",
+  "Bind to address N (default: automatic)") do |b|
+    options[:bind_address] = b
+  end
+
+  opts.on("-l", "--localhost", "Bind to localhost (default: false)") do |l|
+    options[:localhost] = l
+  end
+
+end.parse!
+
+options[:bind_address] = "127.0.0.1" if options[:localhost]
+# END options ******************************************************************
+
+
+# BEGIN message ****************************************************************
+if options[:bind_address] =~ Resolv::IPv6::Regex
+  socket = "[#{options[:bind_address]}]:#{options[:port]}"
+else
+  socket = "#{options[:bind_address]}:#{options[:port]}"
+end
+
+puts center("serve-here").black_on_white
+puts left_and_right("The following socket is your jam:", socket).black_on_white
+puts left_and_right(
+    "Document root (a cool place to be):",
+    options[:document_root]
+  ).black_on_white
+# END message ******************************************************************
+
+
+# BEGIN server *****************************************************************
+server =
+  WEBrick::HTTPServer.new(
+    Port: options[:port],
+    DocumentRoot: options[:document_root],
+    BindAddress: options[:bind_address]
+  )
+
+trap 'INT' do
+  server.shutdown
+end
+
+server.start
+# END server *******************************************************************

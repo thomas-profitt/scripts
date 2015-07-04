@@ -1,0 +1,7 @@
+#!/bin/bash
+
+killall Finder
+
+sudo \
+  find / -name .DS_Store -type f -delete && \
+  killall Finder

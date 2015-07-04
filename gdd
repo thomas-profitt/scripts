@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require 'shellwords'
+
+if ARGV.length < 2
+  $stderr.puts "You must specify a phrase, then a directory."
+  exit
+end
+
+phrase = Shellwords.shellescape ARGV[0..-2].join(" ")
+
+if Dir.exist? ARGV[-1]
+  dir = Shellwords.shellescape ARGV[-1]
+else
+  $stderr.puts "That directory (the last argument) doesn't exist."
+  exit
+end
+
+exec %Q{grep -r --color=ALWAYS #{phrase} #{dir} | less -SR}

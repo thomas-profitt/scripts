@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+case ARGV[0]
+when "home", nil, ""
+  remote_mount_point = "/home/tom"
+when "root"
+  remote_mount_point = "/"
+else
+  remote_mount_point = "ARGV[0]"
+end
+
+exec "sshfs tom@owlbear:#{remote_mount_point} /Users/tom/sshfs/owlbear"

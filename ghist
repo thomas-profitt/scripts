@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'shellwords'
+
+exec %Q{grep --color=ALWAYS #{Shellwords.shellescape ARGV.join(" ")} ~/.*sh_history | less -SR}
