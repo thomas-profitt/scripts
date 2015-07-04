@@ -4,6 +4,7 @@ require 'webrick'
 require 'socket'
 require 'optparse'
 require 'resolv'
+require 'colorize'
 require_relative 'lib/terminal_formatting' and include TerminalFormatting
 
 
@@ -60,12 +61,12 @@ else
   socket = "#{options[:bind_address]}:#{options[:port]}"
 end
 
-puts center("serve-here").black_on_white
-puts left_and_right("The following socket is your jam:", socket).black_on_white
+puts center("serve-here").black.on_white
+puts left_and_right("The following socket is your jam:", socket).black.on_white
 puts left_and_right(
     "Document root (a cool place to be):",
     options[:document_root]
-  ).black_on_white
+  ).black.on_white
 # END message ******************************************************************
 
 

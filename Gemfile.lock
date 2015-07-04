@@ -2,9 +2,11 @@ GEM
   remote: https://rubygems.org/
   specs:
     colorize (0.7.7)
+    vmstat (2.1.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   colorize
+  vmstat
