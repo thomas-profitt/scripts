@@ -16,6 +16,17 @@ rescue Resolv::ResolvError
   abort
 end
 
+user = "tom"
+host = "owlbear"
+smut_path = Pathname.new("/home/tom/.porn/Unsorted")
+
+begin
+  Resolv.getaddress host
+rescue Resolv::ResolvError
+  puts "Unable to resolve hostname \"#{host}\"; aborting"
+  abort
+end
+
 ARGV.each do |fn|
   unless File.exist? fn
     puts "File `fn` does not exist; skipping"
