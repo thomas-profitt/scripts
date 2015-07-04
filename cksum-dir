@@ -1,0 +1,11 @@
+#!/bin/bash
+# Usage: From current directory, pass name of directory
+# to be hashed, without trailing slash
+
+dir=$1
+
+find $dir -type f -exec cksum "{}" \; > $dir.presort && \
+sort $dir.presort > $dir.chk && \
+rm $dir.presort
+# running sort on a file and writing its output to the same file in one
+# statement clobbers the file completely

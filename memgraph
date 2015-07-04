@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'vmstat'
+require 'colorize'
+
+last_line = ""
+same_line_counter = 2
+while true
+
+  memory = Vmstat::snapshot.memory
+  memory_used =
+    (memory.total_bytes - memory.free_bytes - memory.inactive_bytes) /
+    memory.total_bytes.to_f
+
+  this_line =
+    ((" " * 80) + "\r" + ("-" * ((80 * memory_used) - 1) << "*".light_cyan)).on_light_black
+
+  if last_line == this_line
+    print "\r#{same_line_counter}s".on_light_black
+    same_line_counter += 2
+  else
+    print "\n" + this_line
+    same_line_counter = 2
+  end
+
+  last_line = this_line
+  sleep 2
+
+end

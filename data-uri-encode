@@ -1,0 +1,12 @@
+#!/bin/bash
+
+tmpFile="/tmp/data-uri-encode.tmp"
+
+uuencode -m $1 tom-was-here \
+| sed '1d' \
+| sed '$d' \
+| xargs -I "{}" echo "{}" > $tmpFile \
+&& perl -p -i -e 's/\n//g' $tmpFile \
+&& cat $tmpFile
+
+rm $tmpFile

@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+
+require 'pathname'
+require 'shellwords'
+require 'fileutils'
+
+require_relative 'lib/terminal_formatting'
+
+def has_only_itunes_music(album_path)
+  # TODO: This should check the output of exiftool for iTunes junk
+  Dir.chdir album_path do
+    return false if Dir["[!.]*.m4a"].empty?
+    Dir["[!.]*.m4a"].each do |song|
+      unless `exiftool #{Shellwords.shellescape song}`.
+              include? "Apple Store Account"
+        #puts "#{album_path} contains non-iTunes music."
+        return false
+      end
+    end
+  end
+  #puts "#{album_path} contains all-iTunes music."
+  return true
+end
+
+def tarball_contains_all_music(tarball_path)
+      m4as_here = Dir["[!BEING_CONVERTED_]*.m4a"].each.to_a
+
+      size_of_all_music = m4as_here.map { |file| File.size file }.inject(:+)
+
+      # We could also parse per-file size information from `tar -tv`'s output.
+      tarball_about_right_size =
+        (File.size(tarball_path) + (1024 * 1024) >= size_of_all_music &&
+         File.size(tarball_path) - (1024 * 1024) <= size_of_all_music)
+      
+      tarball_filenames_match =
+        (m4as_here -
+        `tar -tf #{Shellwords.shellescape tarball_path}`.split("\n") == [])
+
+      return (tarball_filenames_match && tarball_about_right_size)
+end
+
+ARGV.each do |album|
+  album = Pathname.new(album).cleanpath
+  unless Dir.exist?(album) && has_only_itunes_music(album)
+    puts ("%-73s" % album.to_s + "ignored").yellow
+    next
+  end
+  puts ("%-73s" % album.to_s + "working").green
+  Dir.chdir album do
+
+    # Package the original songs in a tarball,
+    # placing it "beside" the album directory
+    tarball_path = "../#{album.split.last}.tar"
+    tarball_path_shell = Shellwords.shellescape tarball_path
+    if File.exist? tarball_path
+      if !tarball_contains_all_music(tarball_path)
+        raise "There's already a tarball, " <<
+              "and it doesn't appear to contain these songs. " <<
+              "Resolve the conflict and run again."
+      else
+        # Delete the tarball and make it again because simplicity
+        FileUtils.rm tarball_path
+      end
+    end
+    `tar -cvf #{tarball_path_shell} [!BEING_CONVERTED_]*.m4a`
+
+    # Convert each song not being converted
+    Dir["[!BEING_CONVERTED_]*.m4a"].each do |song|
+      `/home/tom/software/libav/avconv \
+        -i #{Shellwords.shellescape song} \
+        -c:a libfdk_aac -vbr 4 \
+        -vn BEING_CONVERTED_#{Shellwords.shellescape song}`
+    end
+
+    # Delete the original songs
+    Dir["[!BEING_CONVERTED_]*.m4a"].each do |song|
+      FileUtils.rm song
+    end
+
+    # Rename the new songs to the names of the originals
+    Dir["[BEING_CONVERTED_]*.m4a"].each do |song|
+      FileUtils.mv song, song.gsub(/BEING_CONVERTED_/, "")
+    end
+
+  end
+end

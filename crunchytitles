@@ -1,0 +1,7 @@
+#!/bin/bash
+# Usage: run from the directory containing the files to rename, without args
+
+rename 's/^http-.* - episode-//' http-*.mkv && \
+rename 's/-\d{6}//' *.mkv && \
+rename 's/-/\ /g' *.mkv && \
+rename 's/^/0/' [0-9]\ *.mkv

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Dungeons and Dragons: Neverwinter
+GenericName=Game
+Comment=PlayOnLinux
+Type=Application
+Exec=/usr/share/playonlinux/playonlinux --run "Dungeons and Dragons: Neverwinter"
+Icon=/home/tom/.PlayOnLinux//icones/full_size/Dungeons and Dragons: Neverwinter
+Categories=PlayOnLinux;
+Name[fr_FR]=Dungeons and Dragons: Neverwinter

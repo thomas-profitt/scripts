@@ -1,0 +1,21 @@
+#!/bin/bash
+
+mkdir /tmp/tempCIT130Final/
+
+cp -r /home/tom/.gvfs/tom\ on\ tom-netbook/Coursework/CIT130/ThomasProfittCIT130-101Final/* /tmp/tempCIT130Final/
+
+
+sudo rm -r /var/www/*
+
+sudo cp -r /tmp/tempCIT130Final/* /var/www/
+
+# Here there be kludges
+sudo chmod 0444 /var/www/*
+sudo chmod 0555 /var/www/*/
+
+sudo chmod 0444 /var/www/downloads/*
+sudo chmod 0444 /var/www/images/*
+sudo chmod 0444 /var/www/videos/*
+
+
+rm -r /tmp/tempCIT130Final/

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+clean_arg=`printf %q "$1"`
+
+xfce4-terminal -e "vim $clean_arg"

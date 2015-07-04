@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require 'colorize'
+
+package_names =
+  `dpkg --get-selections | grep install`.split.reject { |x|
+    x == "install" || x == "deinstall"
+  }
+
+puts "Examining #{package_names.length} packages...".light_green
+
+packages_with_no_reverse_depends = []
+
+rdepends =
+  package_names.each_with_index.map { |x, i|
+    output = `apt-cache rdepends #{x} --installed -q`
+    if output.lines.length <= 2
+      packages_with_no_reverse_depends << x
+      nil
+    else
+      output.sub(x, x.light_blue)
+    end
+  }
+rdepends.reject &:nil?
+
+puts rdepends
+
+if packages_with_no_reverse_depends.length > 0
+  puts "Packages with no reverse dependencies:"
+  puts packages_with_no_reverse_depends.join(", ")
+end

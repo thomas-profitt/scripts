@@ -1,0 +1,117 @@
+#!/usr/bin/env ruby
+
+require 'pry'
+require 'uri'
+require 'net/http'
+require 'fileutils'
+require 'pathname'
+require 'json'
+require 'shellwords'
+
+require_relative 'lib/terminal_formatting' and include TerminalFormatting
+
+def clean_illegal(string)
+  return nil unless string
+  string.
+    gsub('/', '_').
+    gsub('\\', '')
+end
+
+album_pods = []
+end_results = []
+
+ARGV.each do |this_bandcamp_album_url|
+
+  response = Net::HTTP.get(URI(this_bandcamp_album_url))
+
+  tracks_data =
+    JSON.parse response.lines.select { |line|
+        line =~ /^    trackinfo/
+      }.
+    first[/\[.*\]/]
+
+  quality = clean_illegal(tracks_data.first["file"].keys.first)
+
+  local_song_filenames = tracks_data.map { |e|
+      e["track_num"] ||= 1
+      clean_illegal(
+        ("%02d" % e["track_num"]) + " " +
+          e["title"] +
+          ".#{quality.split("-").first}"
+      )
+    }
+
+  response[/BandData = (\{[^\}]*\})/m]
+  artist = clean_illegal(JSON.parse($1.gsub(/([\w]+):/, '"\1":'))["name"])
+
+  # This one's shaky.
+  response[/<title>(.*)\s*\|.*<\/title>/]
+  album_title = clean_illegal($1.strip)
+
+  response[/artFullsizeUrl: "(.*?)"/]
+  album_art_url = $1
+
+  local_album_dir =
+    Pathname.new(
+    ("/home/tom/Music/#{artist}/#{album_title} (Bandcamp #{quality})")).
+      cleanpath
+
+  unless Dir.exist? local_album_dir
+    puts center("Album Information").black_on_white
+    puts left_and_right("Artist:", artist)
+    puts left_and_right("Album Title:", album_title)
+    puts left_and_right("Encoding and Quality:", quality)
+    puts left_and_right("Album Art:", album_art_url)
+    local_song_filenames.each_with_index do |s, i|
+        puts center(s)
+    end
+    puts left_and_right("Local dir:", local_album_dir)
+  else
+    end_results << ("#{local_album_dir} already existed; ignored.\n").red
+    next
+  end
+
+  puts "Is this album information correct? [y/n]:".black_on_white
+  unless STDIN.gets.downcase.start_with?('y')
+    end_results << "#{local_album_dir} manually rejected".yellow
+    next
+  end
+
+  album_pods << {
+      local_album_dir: local_album_dir,
+      album_art_url: album_art_url,
+      tracks_data: tracks_data,
+      local_song_filenames: local_song_filenames
+    }
+end
+
+album_pods.each do |pod|
+
+  local_album_dir = pod[:local_album_dir]
+  album_art_url = pod[:album_art_url]
+  tracks_data = pod[:tracks_data]
+  local_song_filenames = pod[:local_song_filenames]
+
+  FileUtils.mkpath local_album_dir
+
+  Dir.chdir local_album_dir do
+    `wget '#{album_art_url}' -O .bg#{File.extname album_art_url}`
+    `ln -s /home/tom/Music/web-player.php index.php`
+
+    tracks_data.each_with_index do |track, i|
+      if track["file"]
+        `wget '#{track["file"].values.first}'\
+          -O #{Shellwords.shellescape local_song_filenames[i]}`
+      else
+        end_results <<
+          "#{local_album_dir + local_song_filenames[i]} was not downloadable.".
+          red
+      end
+    end
+
+  end
+end
+
+end_results.each do |line|
+  puts line
+end
