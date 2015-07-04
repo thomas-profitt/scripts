@@ -2,6 +2,7 @@
 
 require 'shellwords'
 require 'resolv'
+require 'socket'
 require 'fileutils'
 require 'pathname'
 
@@ -13,6 +14,12 @@ begin
   Resolv.getaddress host
 rescue Resolv::ResolvError
   puts "Unable to resolve hostname \"#{host}\"; aborting"
+  abort
+end
+
+if Socket.ip_address_list.map(&:ip_address).include? Resolv.getaddress(host)
+  puts "scp does not work for transferring files " <<
+    "between locations on the same system; aborting."
   abort
 end
 
@@ -35,6 +42,9 @@ ARGV.each do |fn|
 
   `scp #{Shellwords.shellescape fn} #{user}@#{host}:#{Shellwords.shellescape(smut_path + fn)}`
 
-  puts "removing #{fn}"
-  FileUtils.rm fn
+  if $?.exitstatus == 0
+    puts "Transferred #{fn} with exit-status 0. Removing file."
+    FileUtils.rm fn
+  end
+
 end
