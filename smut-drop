@@ -5,20 +5,68 @@ require 'resolv'
 require 'socket'
 require 'fileutils'
 require 'pathname'
+require 'optparse'
 
 user = "tom"
 host = "owlbear"
-smut_path = Pathname.new("/home/tom/.porn/Unsorted").cleanpath
+smut_path = Pathname.new("/home/#{user}/.porn").cleanpath
+subdirectory = Pathname.new("Unsorted").cleanpath
+# nothing can clean these paths
+
+# BEGIN options ****************************************************************
+OptionParser.new do |opts|
+  opts.banner =
+    ["Usage: smut-drop [OPTIONS] FILES",
+    "smut-drop moves FILES into USER@HOST's PORN_PATH/SUBDIRECTORY"].
+    join "\n"
+
+  opts.on("-u USER", "--user USER",
+  "Remote host's UNIX user name/home folder name (default: tom)") do |u|
+    user = u
+  end
+
+  opts.on("-H HOST", "--host HOST",
+  "The address of the host (default: owlbear)") do |h|
+    host = h
+  end
+
+  opts.on("-p PORN_PATH", "--porn-path PORN_PATH",
+  "The porn directory's root (default: /home/USER/.porn)") do |p|
+    smut_path = Pathname.new(p).cleanpath
+  end
+
+  opts.on("-s SUBDIRECTORY", "--subdirectory SUBDIRECTORY",
+  "PORN_PATH's subdirectory to move to (default: Unsorted)") do |s|
+    subdirectory = Pathname.new(s).cleanpath
+  end
+
+  opts.on("-h", "--help", "Prints this help") do
+    puts opts
+    exit
+  end
+
+end.parse!
+# END options ******************************************************************
+
+if ARGV.empty?
+  puts "No files provided; exiting."
+  exit
+end
 
 if Socket.ip_address_list.map(&:ip_address).include? Resolv.getaddress(host)
+  # BEGIN local copy ***********************************************************
 
   puts "Script being ran from #{host}; simply moving files."
   ARGV.each do |fn|
-    FileUtils.mv fn, smut_path
+    full_path = (smut_path + subdirectory).cleanpath
+    Fileutils.mkpath(full_path) unless File.exist?(full_path)
+    FileUtils.mv fn, full_path
   end
   exit
 
+  # BEGIN local copy ***********************************************************
 else
+  # BEGIN remote move **********************************************************
 
   begin
     Resolv.getaddress host
@@ -38,7 +86,7 @@ else
     end
   end
 
-  `scp #{files_to_copy.map{ |fn| Shellwords.shellescape fn }.join(" ")} #{user}@#{host}:#{Shellwords.shellescape(smut_path)}`
+  `scp #{files_to_copy.map{ |fn| Shellwords.shellescape fn }.join(" ")} #{user}@#{host}:#{Shellwords.shellescape(smut_path + subdirectory)}`
 
   if $?.exitstatus == 0
     puts "scp exit status 0; removing local files"
@@ -49,5 +97,6 @@ else
   else
     puts "scp exited with a failure exit code; local files not deleted."
   end
+  # END remote move ************************************************************
 
 end
