@@ -10,49 +10,44 @@ user = "tom"
 host = "owlbear"
 smut_path = Pathname.new("/home/tom/.porn/Unsorted").cleanpath
 
-begin
-  Resolv.getaddress host
-rescue Resolv::ResolvError
-  puts "Unable to resolve hostname \"#{host}\"; aborting"
-  abort
-end
-
 if Socket.ip_address_list.map(&:ip_address).include? Resolv.getaddress(host)
-  puts "scp does not work for transferring files " <<
-    "between locations on the same system; aborting."
-  abort
-end
 
-user = "tom"
-host = "owlbear"
-smut_path = Pathname.new("/home/tom/.porn/Unsorted")
+  puts "Script being ran from #{host}; simply moving files."
+  ARGV.each do |fn|
+    FileUtils.mv fn, smut_path
+  end
+  exit
 
-begin
-  Resolv.getaddress host
-rescue Resolv::ResolvError
-  puts "Unable to resolve hostname \"#{host}\"; aborting"
-  abort
-end
+else
 
-files_to_copy = []
+  begin
+    Resolv.getaddress host
+  rescue Resolv::ResolvError
+    puts "Unable to resolve hostname \"#{host}\"; aborting"
+    abort
+  end
 
-ARGV.each do |fn|
+  files_to_copy = []
 
-  unless File.exist? fn
-    puts "File \"#{fn}\" does not exist; skipping"
-    next
+  ARGV.each do |fn|
+    if File.exist? fn
+      files_to_copy << fn
+    else
+      puts "File \"#{fn}\" does not exist; skipping"
+      next
+    end
+  end
+
+  `scp #{files_to_copy.map{ |fn| Shellwords.shellescape fn }.join(" ")} #{user}@#{host}:#{Shellwords.shellescape(smut_path)}`
+
+  if $?.exitstatus == 0
+    puts "scp exit status 0; removing local files"
+    files_to_copy.each do |fn|
+      puts "Transferred #{fn} with exit-status 0. Removing file."
+      FileUtils.rm fn
+    end
   else
-  files_to_copy << fn
+    puts "scp exited with a failure exit code; local files not deleted."
   end
 
-end
-
-`scp #{files_to_copy.map{ |fn| Shellwords.shellescape fn }.join(" ")} #{user}@#{host}:#{Shellwords.shellescape(smut_path)}`
-
-if $?.exitstatus == 0
-  puts "scp exit status 0; removing local files"
-  files_to_copy.each do |fn|
-    puts "Transferred #{fn} with exit-status 0. Removing file."
-    FileUtils.rm fn
-  end
 end
