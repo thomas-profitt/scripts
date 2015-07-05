@@ -34,17 +34,25 @@ rescue Resolv::ResolvError
   abort
 end
 
+files_to_copy = []
+
 ARGV.each do |fn|
+
   unless File.exist? fn
-    puts "File `fn` does not exist; skipping"
+    puts "File \"#{fn}\" does not exist; skipping"
     next
+  else
+  files_to_copy << fn
   end
 
-  `scp #{Shellwords.shellescape fn} #{user}@#{host}:#{Shellwords.shellescape(smut_path + fn)}`
+end
 
-  if $?.exitstatus == 0
+`scp #{files_to_copy.map{ |fn| Shellwords.shellescape fn }.join(" ")} #{user}@#{host}:#{Shellwords.shellescape(smut_path + fn)}`
+
+if $?.exitstatus == 0
+  puts "scp exit status 0; removing local files"
+  files_to_copy.each do |fn|
     puts "Transferred #{fn} with exit-status 0. Removing file."
     FileUtils.rm fn
   end
-
 end
