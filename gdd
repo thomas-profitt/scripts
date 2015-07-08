@@ -9,7 +9,7 @@ end
 
 phrase = Shellwords.shellescape ARGV[0..-2].join(" ")
 
-if Dir.exist? ARGV[-1]
+if Dir.exist?(ARGV[-1]) || File.exist?(ARGV[-1])
   dir = Shellwords.shellescape ARGV[-1]
 else
   $stderr.puts "That directory (the last argument) doesn't exist."
