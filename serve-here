@@ -25,7 +25,8 @@ default_options = {
   port:8000,
   bind_address:default_bind_address,
   document_root:default_document_root,
-  localhost:false
+  localhost:false,
+  daemonize:false
 }
 options = default_options
 
@@ -46,6 +47,10 @@ OptionParser.new do |opts|
 
   opts.on("-l", "--localhost", "Bind to localhost (default: false)") do |l|
     options[:localhost] = l
+  end
+
+  opts.on("-d", "--daemonize", "Run as a daemon (default: false)") do |d|
+    options[:daemonize] = d
   end
 
   opts.on("-h", "--help", "Prints this help") do
@@ -72,6 +77,15 @@ puts left_and_right(
     "Document root (a cool place to be):",
     options[:document_root]
   ).black.on_white
+if options[:daemonize]
+  puts center("   _                                ").red.on_black
+  puts center("  | |                    ^-^   ^ ^ ^").red.on_black
+  puts center("  | |     ^-^        ^-^       |_|_|").red.on_black
+  puts center(" _| |_                     ^-^   |  ").red.on_black
+  puts center("|_   _|    Running as a daemon   |  ").red.on_black
+  puts center("  |_|                            |  ").red.on_black
+  Process.daemon
+end
 # END message ******************************************************************
 
 
