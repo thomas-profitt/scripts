@@ -54,7 +54,7 @@ if ARGV.empty?
 end
 
 if Socket.ip_address_list.map(&:ip_address).include? Resolv.getaddress(host)
-  # BEGIN local copy ***********************************************************
+  # BEGIN local move ***********************************************************
 
   puts "Script being ran from #{host}; simply moving files."
   ARGV.each do |fn|
@@ -64,7 +64,7 @@ if Socket.ip_address_list.map(&:ip_address).include? Resolv.getaddress(host)
   end
   exit
 
-  # BEGIN local copy ***********************************************************
+  # BEGIN local move ***********************************************************
 else
   # BEGIN remote move **********************************************************
 
