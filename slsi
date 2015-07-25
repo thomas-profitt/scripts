@@ -3,7 +3,7 @@
 case ARGV[0]
 when "stream", "production", "prod", "p"
   subdomain = "stream"
-when           "staging",    "stag", "s"
+when "staging", "stag", "s"
   subdomain = "staging"
 else
   raise "Invalid subdomain"
