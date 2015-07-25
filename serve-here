@@ -7,6 +7,8 @@ require 'resolv'
 require 'colorize'
 require_relative 'lib/terminal_formatting' and include TerminalFormatting
 
+Process.setproctitle "serve-here"
+
 
 # BEGIN options ****************************************************************
 default_bind_address =
