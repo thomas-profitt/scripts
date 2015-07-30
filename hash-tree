@@ -68,7 +68,7 @@ growth_multiplier = 1.0
 
 short_row_every = [3, 4, 7][hash_random.rand(3)]
 
-22.times do |i|
+21.times do |i|
   short_row = false
 
   if (i + 1) % short_row_every == 0
@@ -128,3 +128,4 @@ short_row_every = [3, 4, 7][hash_random.rand(3)]
 end
 
 puts center("|__|").yellow
+puts center("Merry #{ARGV[0]}!").red.on_white
