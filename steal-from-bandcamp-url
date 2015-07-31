@@ -1,12 +1,13 @@
 #!/usr/bin/env ruby
 
-require 'pry'
 require 'uri'
 require 'net/http'
 require 'fileutils'
 require 'pathname'
 require 'json'
 require 'shellwords'
+
+require 'colorize'
 
 require_relative 'lib/terminal_formatting' and include TerminalFormatting
 
@@ -57,7 +58,7 @@ ARGV.each do |this_bandcamp_album_url|
       cleanpath
 
   unless Dir.exist? local_album_dir
-    puts center("Album Information").black_on_white
+    puts center("Album Information").black.on_white
     puts left_and_right("Artist:", artist)
     puts left_and_right("Album Title:", album_title)
     puts left_and_right("Encoding and Quality:", quality)
@@ -71,7 +72,7 @@ ARGV.each do |this_bandcamp_album_url|
     next
   end
 
-  puts "Is this album information correct? [y/n]:".black_on_white
+  puts "Is this album information correct? [y/n]:".black.on_white
   unless STDIN.gets.downcase.start_with?('y')
     end_results << "#{local_album_dir} manually rejected".yellow
     next
