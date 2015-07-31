@@ -5,7 +5,8 @@ require 'colorize'
 require_relative 'lib/terminal_formatting'
 include TerminalFormatting
 
-hash_random = Random.new(Digest::MD5.hexdigest(File.read(ARGV[0])).hex.to_i)
+hexdigest = Digest::MD5.hexdigest(File.read(ARGV[0])).hex
+hash_random = Random.new(hexdigest.to_i)
 
 needles = %w[! ! + ^]
 ornaments = %w[@ o {} % G C]
@@ -68,7 +69,7 @@ growth_multiplier = 1.0
 
 short_row_every = [3, 4, 7][hash_random.rand(3)]
 
-21.times do |i|
+20.times do |i|
   short_row = false
 
   if (i + 1) % short_row_every == 0
@@ -129,3 +130,4 @@ end
 
 puts center("|__|").yellow
 puts center("Merry #{ARGV[0]}!").red.on_white
+puts center("And a happy #{hexdigest.to_s(16)}!").white.on_red
