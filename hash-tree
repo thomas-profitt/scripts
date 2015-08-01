@@ -112,14 +112,14 @@ short_row_every = [3, 4, 7][hash_random.rand(3)]
   # Colorize ornaments
   ornaments.each do |ornament|
     row = row.gsub(ornament) do |m|
-      ornament.send([:red, :yellow, :to_s][hash_random.rand(3)])
+      ornament.send([:red, :yellow, :white][hash_random.rand(3)])
     end
   end
 
   # Colorize lights
   lights.each do |light|
     row = row.gsub(light) do
-      light.send([:red, :blue, :to_s][hash_random.rand(3)])
+      light = light.send([:red, :blue, :white][hash_random.rand(3)]).blink
     end
   end
 
