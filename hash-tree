@@ -7,12 +7,18 @@ include TerminalFormatting
 
 require 'pry'
 
-BUILD = "16"
+BUILD = "17"
 
-if ARGV.length != 1
+if ARGV.length != 1 || ARGV[0] == "-h" || ARGV[0] == "--help"
   puts "Usage: hash-tree ONE_FILE_OR_DIRECTORY"
-  return false
+  exit
 end
+
+unless File.exist?(ARGV[0]) || Dir.exist?(ARGV[0])
+  puts "File or directory '#{ARGV[0]}' does not exist."
+  exit
+end
+
 
 # BEGIN get hexdigest ##########################################################
 hexdigest = 0
