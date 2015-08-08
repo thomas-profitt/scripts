@@ -7,7 +7,7 @@ include TerminalFormatting
 
 require 'pry'
 
-BUILD = "17"
+BUILD = "18"
 
 if ARGV.length != 1 || ARGV[0] == "-h" || ARGV[0] == "--help"
   puts "Usage: hash-tree ONE_FILE_OR_DIRECTORY"
@@ -96,7 +96,7 @@ short_present = [
 characters_needed = 2
 growth_multiplier = 1.0
 
-short_row_every = [3, 4, 7][hash_random.rand(3)]
+short_row_every = hash_random.rand(3..7)
 
 20.times do |i|
   short_row = false
