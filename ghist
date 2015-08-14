@@ -30,6 +30,7 @@ query = options[:regex] ? Regexp.new(ARGV[0]) : ARGV[0]
 history_content = history_filenames.
   map { |s| File.read(s) }.
   join("\n").
+  encode('UTF-8', invalid: :replace).
   split("\n").
   map(&:strip).
   uniq
