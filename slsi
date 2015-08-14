@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
 case ARGV[0]
-when "stream", "production", "prod", "p"
-  subdomain = "stream"
+when "production", "prod", "p"
+  subdomain = "production"
 when "staging", "stag", "s"
   subdomain = "staging"
 else
-  raise "Invalid subdomain"
+  subdomain = ARGV[0]
 end
 
 exec "ssh -i ~/.ssh/aws-lsi-streaming/TwinEngine root@#{subdomain}.livingscriptures.com"
