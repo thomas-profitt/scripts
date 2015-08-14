@@ -55,11 +55,6 @@ OptionParser.new do |opts|
     options[:daemonize] = d
   end
 
-  opts.on("-h", "--help", "Prints this help") do
-    puts opts
-    exit
-  end
-
 end.parse!
 
 options[:bind_address] = "127.0.0.1" if options[:localhost]
