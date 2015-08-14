@@ -1,5 +1,42 @@
 #!/usr/bin/env ruby
 
-require 'shellwords'
+require 'optparse'
 
-exec %Q{grep --color=ALWAYS #{Shellwords.shellescape ARGV.join(" ")} ~/.*sh_history | less -SR}
+require 'colorize'
+
+options = {regex: false}
+history_filenames = Dir['.*sh_history']
+query = nil
+
+OptionParser.new do |opts|
+
+  opts.banner =
+    ["Usage: ghist [options] QUERY",
+    "Starts a WEBrick HTTP server from the current directory"].
+    join "\n"
+
+  opts.on("-r", "--regex", "Consider QUERY a Ruby regex") do |r|
+    options[:regex] = true
+  end
+
+end.parse!
+
+if ARGV.empty? || ARGV[0].empty?
+  puts "No query provided; exiting"
+  abort
+end
+
+query = options[:regex] ? Regexp.new(ARGV[0]) : ARGV[0]
+history_content = history_filenames.
+  map { |s| File.read(s) }.
+  join("\n").
+  split("\n").
+  map(&:strip).
+  uniq
+history_matches = history_content.select { |s| s[query] }
+history_matches.map! { |s| s.gsub query, s[query].light_green.bold }
+
+history_matches.each do |s|
+  puts s
+end
+
