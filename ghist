@@ -5,7 +5,7 @@ require 'optparse'
 require 'colorize'
 
 options = {regex: false}
-history_filenames = Dir['.*sh_history']
+history_filenames = Dir[Dir.home << "/.*sh_history"]
 query = nil
 
 OptionParser.new do |opts|
