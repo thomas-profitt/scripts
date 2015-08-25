@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+require 'pathname'
+require 'shellwords'
+
 case ARGV[0]
 when "home", nil, ""
   remote_mount_point = "/home/tom"
@@ -9,4 +12,4 @@ else
   remote_mount_point = "ARGV[0]"
 end
 
-exec "sshfs tom@owlbear:#{remote_mount_point} /Users/tom/sshfs/owlbear"
+exec "sshfs tom@owlbear:#{remote_mount_point} #{Shellwords.shellescape ((Pathname.new(Dir.home) + "sshfs") + "owlbear").cleanpath.to_s}"
