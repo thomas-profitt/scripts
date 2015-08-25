@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+# This script used as a temporary album/artist downloading measure while
+# "Owlbear Radio" (soon part of Chestnut) is developed.
+
+require 'pathname'
+require 'shellwords'
+
+subdirectory_of_music = ARGV.first
+path =
+  (Pathname.new('/home/tom/Music') + subdirectory_of_music).cleanpath.to_s
+
+exec %Q{sudo scp -r -i ~/.ssh/id_rsa 'tom@owlbear:#{Shellwords.shellescape path}' /mnt/sdcard/Music}
+
