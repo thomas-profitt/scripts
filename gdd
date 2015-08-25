@@ -16,4 +16,4 @@ else
   exit
 end
 
-exec %Q{grep -r --color=ALWAYS #{phrase} #{dir} | less -SR}
+exec %Q{grep -r --color=ALWAYS #{phrase} #{dir}}
