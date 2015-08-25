@@ -9,7 +9,7 @@ when "home", nil, ""
 when "root"
   remote_mount_point = "/"
 else
-  remote_mount_point = "ARGV[0]"
+  remote_mount_point = ARGV[0]
 end
 
 exec "sshfs tom@owlbear:#{remote_mount_point} #{Shellwords.shellescape ((Pathname.new(Dir.home) + "sshfs") + "owlbear").cleanpath.to_s}"
