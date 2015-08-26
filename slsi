@@ -1,10 +1,14 @@
 #!/usr/bin/env ruby
 
 case ARGV[0]
-when "production", "prod", "p"
+when "prod", "p"
   subdomain = "production"
-when "staging", "stag", "s"
+when "stag", "s"
   subdomain = "staging"
+when "sw"
+  subdomain = "staging-web01"
+when "pw"
+  subdomain = "production-web01"
 else
   subdomain = ARGV[0]
 end

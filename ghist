@@ -4,7 +4,9 @@ require 'optparse'
 
 require 'colorize'
 
-options = {regex: false}
+require_relative 'lib/terminal_formatting' and include TerminalFormatting
+
+options = {regex: false, execute: false, execute_last: false}
 history_filenames = Dir[Dir.home << "/.*sh_history"]
 query = nil
 
@@ -12,11 +14,20 @@ OptionParser.new do |opts|
 
   opts.banner =
     ["Usage: ghist [options] QUERY",
-    "Starts a WEBrick HTTP server from the current directory"].
+    "Searches your shell history file(s) for QUERY",
+    "Can also interactively execute found commands"].
     join "\n"
 
   opts.on("-r", "--regex", "Consider QUERY a Ruby regex") do |r|
     options[:regex] = true
+  end
+
+  opts.on("-e", "--execute", "Execute one of the results by number") do |e|
+    options[:execute] = true
+  end
+
+  opts.on("-E", "--execute-last", "Execute the last matching command") do |e|
+    options[:execute_last] = true
   end
 
 end.parse!
@@ -35,9 +46,33 @@ history_content = history_filenames.
   map(&:strip).
   uniq
 history_matches = history_content.select { |s| s[query] }
-history_matches.map! { |s| s.gsub query, s[query].light_green.bold }
+colorized_history_matches =
+  history_matches.map { |s| s.gsub query, s[query].light_green.bold }
 
-history_matches.each do |s|
-  puts s
+if options[:execute_last]
+  puts colorized_history_matches.last
+  print "Execute this? [y/N]".yellow + "\n\t> "
+  if STDIN.gets.chomp.downcase == "y"
+    puts left_and_right("", "Executing").green
+    exec history_matches.last
+  else
+    puts left_and_right("", "Not executed").red
+  end
+elsif options[:execute]
+  colorized_history_matches.each_with_index do |s, i|
+    puts i.to_s.yellow << " " << s
+  end
+  print "Enter an index from above to execute that command:\n\t> "
+  input_index = STDIN.gets.to_i
+  if history_matches[input_index]
+    puts left_and_right("", "Executing").green
+    exec history_matches[input_index]
+  else
+    puts left_and_right("", "Not executed").red
+  end
+else
+  colorized_history_matches.each do |s|
+    puts s
+  end
 end
 
