@@ -4,7 +4,7 @@ require 'pathname'
 require 'shellwords'
 require 'fileutils'
 
-require_relative 'lib/terminal_formatting'
+require_relative '../lib/terminal_formatting'
 
 def has_only_itunes_music(album_path)
   # TODO: This should check the output of exiftool for iTunes junk
