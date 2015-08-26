@@ -97,7 +97,8 @@ elsif options[:execute_interactive]
       puts i.to_s << " " << s
     end
   end
-  print "Enter an index from above to execute that command:\n\t> "
+  print "Enter an index from above to execute that command:\n\t" <<
+    "> ".send(options[:color] ? :yellow : :to_s)
   input_index = STDIN.gets.to_i
   if history_matches[input_index]
     puts left_and_right("", "Executing").send(options[:color] ? :green : :to_s)
