@@ -51,6 +51,11 @@ OptionParser.new do |opts|
     options[:yes] = true
   end
 
+  opts.on("-p", "--include-pry-history", "Include ~/.pry_history") do |p|
+    options[:include_pry_history] = true
+    history_filenames << (Dir.home << "/.pry_history")
+  end
+
 end.parse!
 
 if ARGV.empty? || ARGV[0].empty?
