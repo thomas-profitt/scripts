@@ -11,7 +11,13 @@ end
 
 require_relative 'lib/terminal_formatting' and include TerminalFormatting
 
-options = {regex: false, color: color, execute: false, execute_last: false}
+options = {
+  color: color,
+  regex: false,
+  execute_interactive: false,
+  execute_index: false
+}
+
 history_filenames = Dir[Dir.home << "/.*sh_history"]
 query = nil
 
@@ -30,12 +36,14 @@ OptionParser.new do |opts|
     options[:regex] = true
   end
 
-  opts.on("-e", "--execute", "Execute one of the results by number") do |e|
-    options[:execute] = true
+  opts.on("-e", "--execute-interactive",
+  "Execute a match by index (interactive)") do |e|
+    options[:execute_interactive] = true
   end
 
-  opts.on("-E", "--execute-last", "Execute the last matching command") do |e|
-    options[:execute_last] = true
+  opts.on("-E INDEX", "--execute-index INDEX", OptionParser::DecimalInteger,
+  "Execute match at INDEX eg. 0, 1, 2, -1, -2") do |e|
+    options[:execute_index] = e
   end
 
 end.parse!
@@ -60,16 +68,21 @@ if options[:color]
     history_matches.map { |s| s.gsub query, s[query].light_green.bold }
 end
 
-if options[:execute_last]
-  puts options[:color] ? colorized_history_matches.last : history_matches.last
+if options[:execute_index]
+  puts(
+    if options[:color]
+      colorized_history_matches[options[:execute_index]]
+    else
+      history_matches[options[:execute_index]]
+    end)
   print "Execute this? [y/N]".send(options[:color] ? :yellow : :to_s) + "\n\t> "
   if STDIN.gets.chomp.downcase == "y"
     puts left_and_right("", "Executing").send(options[:color] ? :green : :to_s)
-    exec history_matches.last
+    exec history_matches[options[:execute_index]]
   else
     puts left_and_right("", "Not executed").send(options[:color] ? :red : :to_s)
   end
-elsif options[:execute]
+elsif options[:execute_interactive]
   if options[:color]
     colorized_history_matches.each_with_index do |s, i|
       puts i.to_s.yellow << " " << s
