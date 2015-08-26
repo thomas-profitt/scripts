@@ -15,7 +15,8 @@ options = {
   color: color,
   regex: false,
   execute_interactive: false,
-  execute_index: false
+  execute_index: false,
+  yes: false
 }
 
 history_filenames = Dir[Dir.home << "/.*sh_history"]
@@ -44,6 +45,10 @@ OptionParser.new do |opts|
   opts.on("-E INDEX", "--execute-index INDEX", OptionParser::DecimalInteger,
   "Execute match at INDEX eg. 0, 1, 2, -1, -2") do |e|
     options[:execute_index] = e
+  end
+
+  opts.on("-y", "--yes", "Automatically answer \"yes\" at prompts") do |y|
+    options[:yes] = true
   end
 
 end.parse!
@@ -76,7 +81,7 @@ if options[:execute_index]
       history_matches[options[:execute_index]]
     end)
   print "Execute this? [y/N]".send(options[:color] ? :yellow : :to_s) + "\n\t> "
-  if STDIN.gets.chomp.downcase == "y"
+  if options[:yes] || STDIN.gets.chomp.downcase == "y"
     puts left_and_right("", "Executing").send(options[:color] ? :green : :to_s)
     exec history_matches[options[:execute_index]]
   else
