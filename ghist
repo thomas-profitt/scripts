@@ -2,11 +2,16 @@
 
 require 'optparse'
 
-require 'colorize'
+begin
+  require 'colorize'
+  color = true
+rescue LoadError
+  color = false
+end
 
 require_relative 'lib/terminal_formatting' and include TerminalFormatting
 
-options = {regex: false, execute: false, execute_last: false}
+options = {regex: false, color: color, execute: false, execute_last: false}
 history_filenames = Dir[Dir.home << "/.*sh_history"]
 query = nil
 
@@ -15,10 +20,13 @@ OptionParser.new do |opts|
   opts.banner =
     ["Usage: ghist [options] QUERY",
     "Searches your shell history file(s) for QUERY",
-    "Can also interactively execute found commands"].
+    "Can also interactively execute found commands.",
+    "'colorize' ruby gem " <<
+      (color ? "found".light_green.bold : "not found") << "; " <<
+      "output will" << (color ? " " : " not ") << "be colorized."].
     join "\n"
 
-  opts.on("-r", "--regex", "Consider QUERY a Ruby regex") do |r|
+  opts.on("-r", "--regex", "Consider QUERY a Ruby regex (without //)") do |r|
     options[:regex] = true
   end
 
@@ -46,32 +54,42 @@ history_content = history_filenames.
   map(&:strip).
   uniq
 history_matches = history_content.select { |s| s[query] }
-colorized_history_matches =
-  history_matches.map { |s| s.gsub query, s[query].light_green.bold }
+
+if options[:color]
+  colorized_history_matches =
+    history_matches.map { |s| s.gsub query, s[query].light_green.bold }
+end
 
 if options[:execute_last]
-  puts colorized_history_matches.last
-  print "Execute this? [y/N]".yellow + "\n\t> "
+  puts options[:color] ? colorized_history_matches.last : history_matches.last
+  print "Execute this? [y/N]".send(options[:color] ? :yellow : :to_s) + "\n\t> "
   if STDIN.gets.chomp.downcase == "y"
-    puts left_and_right("", "Executing").green
+    puts left_and_right("", "Executing").send(options[:color] ? :green : :to_s)
     exec history_matches.last
   else
-    puts left_and_right("", "Not executed").red
+    puts left_and_right("", "Not executed").send(options[:color] ? :red : :to_s)
   end
 elsif options[:execute]
-  colorized_history_matches.each_with_index do |s, i|
-    puts i.to_s.yellow << " " << s
+  if options[:color]
+    colorized_history_matches.each_with_index do |s, i|
+      puts i.to_s.yellow << " " << s
+    end
+  else
+    history_matches.each_with_index do |s, i|
+      puts i.to_s << " " << s
+    end
   end
   print "Enter an index from above to execute that command:\n\t> "
   input_index = STDIN.gets.to_i
   if history_matches[input_index]
-    puts left_and_right("", "Executing").green
+    puts left_and_right("", "Executing").send(options[:color] ? :green : :to_s)
     exec history_matches[input_index]
   else
-    puts left_and_right("", "Not executed").red
+    puts left_and_right("", "Not executed").send(options[:color] ? :red : :to_s)
   end
 else
-  colorized_history_matches.each do |s|
+  matches = options[:color] ? colorized_history_matches : history_matches
+  matches.each do |s|
     puts s
   end
 end
