@@ -16,7 +16,9 @@ options = {
   regex: false,
   execute_interactive: false,
   execute_index: false,
-  yes: false
+  delete: false,
+  yes: false,
+  include_pry_history: false
 }
 
 history_filenames = Dir[Dir.home << "/.*sh_history"]
@@ -45,6 +47,11 @@ OptionParser.new do |opts|
   opts.on("-E INDEX", "--execute-index INDEX", OptionParser::DecimalInteger,
   "Execute match at INDEX eg. 0, 1, 2, -1, -2") do |e|
     options[:execute_index] = e
+  end
+
+  opts.on("-d", "--delete",
+  "Delete a match from history by index (interactive)") do |d|
+    options[:delete] = d
   end
 
   opts.on("-y", "--yes", "Automatically answer \"yes\" at prompts") do |y|
@@ -92,7 +99,7 @@ if options[:execute_index]
   else
     puts left_and_right("", "Not executed").send(options[:color] ? :red : :to_s)
   end
-elsif options[:execute_interactive]
+elsif options[:execute_interactive] || options[:delete]
   if options[:color]
     colorized_history_matches.each_with_index do |s, i|
       puts i.to_s.yellow << " " << s
@@ -102,14 +109,32 @@ elsif options[:execute_interactive]
       puts i.to_s << " " << s
     end
   end
-  print "Enter an index from above to execute that command:\n\t" <<
-    "> ".send(options[:color] ? :yellow : :to_s)
+  if options[:execute_interactive]
+    print "Enter an index from above to execute that command:\n\t" <<
+      "> ".send(options[:color] ? :yellow : :to_s)
+  else
+    print "Enter an index from above to DELETE it from history:\n\t".
+    send(options[:color] ? :red : :to_s) <<
+      "> ".send(options[:color] ? :yellow : :to_s)
+  end
   input_index = STDIN.gets.to_i
   if history_matches[input_index]
-    puts left_and_right("", "Executing").send(options[:color] ? :green : :to_s)
-    exec history_matches[input_index]
+    if options[:execute_interactive]
+      puts left_and_right("", "Executing").
+        send(options[:color] ? :green : :to_s)
+      exec history_matches[input_index]
+    else
+      puts left_and_right("", "Deleting (NOT YET IMPLEMENTED)").
+        send(options[:color] ? :red : :to_s)
+    end
   else
-    puts left_and_right("", "Not executed").send(options[:color] ? :red : :to_s)
+    if options[:execute_interactive]
+      puts left_and_right("", "Not executed").
+        send(options[:color] ? :red : :to_s)
+    else
+      puts left_and+right("", "Not deleted").
+        send(options[:color] ? :green : :to_s)
+    end
   end
 else
   matches = options[:color] ? colorized_history_matches : history_matches
