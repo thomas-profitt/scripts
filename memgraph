@@ -13,10 +13,10 @@ while true
     memory.total_bytes.to_f
 
   this_line =
-    ((" " * 80) + "\r" + ("-" * ((80 * memory_used) - 1) << "*".light_cyan)).on_light_black
+    ((" " * 80) + "\r" + ("-" * ((80 * memory_used) - 1) << "*".cyan)).on_black
 
   if last_line == this_line
-    print "\r#{same_line_counter}s".on_light_black
+    print "\r#{same_line_counter}s".on_black
     same_line_counter += 2
   else
     print "\n" + this_line

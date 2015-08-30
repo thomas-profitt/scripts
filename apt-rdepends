@@ -7,7 +7,7 @@ package_names =
     x == "install" || x == "deinstall"
   }
 
-puts "Examining #{package_names.length} packages...".light_green
+puts "Examining #{package_names.length} packages...".green
 
 packages_with_no_reverse_depends = []
 
@@ -18,7 +18,7 @@ rdepends =
       packages_with_no_reverse_depends << x
       nil
     else
-      output.sub(x, x.light_blue)
+      output.sub(x, x.blue)
     end
   }
 rdepends.reject &:nil?

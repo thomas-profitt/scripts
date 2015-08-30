@@ -29,7 +29,7 @@ OptionParser.new do |opts|
     "Searches your shell history file(s) for QUERY",
     "Can also interactively execute found commands.",
     "'colorize' ruby gem " <<
-      (color ? "found".light_green.bold : "not found") << "; " <<
+      (color ? "found".green.bold : "not found") << "; " <<
       "output will" << (color ? " " : " not ") << "be colorized."].
     join "\n"
 
@@ -75,7 +75,7 @@ history_matches = history_content.select { |s| s[query] }
 
 if options[:color]
   colorized_history_matches =
-    history_matches.map { |s| s.gsub query, s[query].light_green.bold }
+    history_matches.map { |s| s.gsub query, s[query].green.bold }
 end
 
 if options[:execute_index]
