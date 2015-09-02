@@ -7,7 +7,7 @@ include TerminalFormatting
 
 require 'pry'
 
-BUILD = "18"
+BUILD = "19"
 
 if ARGV.length != 1 || ARGV[0] == "-h" || ARGV[0] == "--help"
   puts "Usage: hash-tree ONE_FILE_OR_DIRECTORY"
@@ -28,13 +28,13 @@ is_dir = Dir.exist? ARGV[0]
 if is_dir
   Dir.chdir ARGV[0] do
     files = Dir["**/*"].reject { |s| Dir.exist? s }
-    hexdigest = Digest::MD5.hexdigest(files.map { |s| File.read s }.join).hex
+    hexdigest = Digest::MD5.hexdigest(files.map { |s| File.read s }.join)
   end
 else
-  hexdigest = Digest::MD5.hexdigest(File.read(ARGV[0])).hex
+  hexdigest = Digest::MD5.hexdigest(File.read(ARGV[0]))
 end
 
-hash_random = Random.new(hexdigest.to_i)
+hash_random = Random.new(hexdigest.to_i(16))
 # END get hexdigest ############################################################
 
 needles = %w[! ! + ^]
@@ -164,4 +164,4 @@ filename << "/" if is_dir
 puts center(
   "hash-tree build #{BUILD} wishes you a merry #{filename},")
   .red.on_white
-puts center("and a happy #{hexdigest.to_s(16)}!").white.on_red
+puts center("and a happy #{hexdigest}!").white.on_red
