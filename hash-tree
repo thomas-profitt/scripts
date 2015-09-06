@@ -3,7 +3,6 @@
 require 'digest/md5'
 require 'colorize'
 require_relative 'lib/terminal_formatting'
-include TerminalFormatting
 
 require 'pry'
 

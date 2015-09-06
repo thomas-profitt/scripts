@@ -5,7 +5,7 @@ require 'socket'
 require 'optparse'
 require 'resolv'
 require 'colorize'
-require_relative 'lib/terminal_formatting' and include TerminalFormatting
+require_relative 'lib/terminal_formatting'
 
 Process.setproctitle "serve-here"
 
