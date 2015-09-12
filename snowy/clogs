@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo "All the logs: "
+
+find ~/software/twin_engine -name "*.log" -exec du -h "{}" \;
+
+while true; do
+  read -p "Purge those logs? [y/n] " yn
+
+  case $yn in
+    [Yy]* ) find ~/software/twin_engine -name "*.log" -delete; break;;
+    [Nn]* ) exit;;
+    * ) echo "Please answer yes or no."
+  esac
+
+done
