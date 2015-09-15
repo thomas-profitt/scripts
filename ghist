@@ -9,7 +9,7 @@ rescue LoadError
   color = false
 end
 
-require_relative 'lib/terminal_formatting' and include TerminalFormatting
+require_relative 'lib/terminal_formatting'
 
 options = {
   color: color,
