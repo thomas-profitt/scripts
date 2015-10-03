@@ -77,7 +77,10 @@ history_content = history_filenames.
   encode('UTF-8', invalid: :replace).
   split("\n").
   map(&:strip).
-  uniq
+  reverse.
+  uniq.
+  reverse
+  # reverse.uniq.reverse will keep the last duplicate element, not the first.
 history_matches = history_content.select { |s| s[query] }
 
 exit if history_matches.empty?
