@@ -96,12 +96,17 @@ album_pods.each do |pod|
   FileUtils.mkpath local_album_dir
 
   Dir.chdir local_album_dir do
-    `wget '#{album_art_url}' -O .art#{File.extname album_art_url}`
+    `wget '#{album_art_url}' -O .cover#{File.extname album_art_url}`
     `ln -s /home/tom/Music/web-player.php index.php`
 
     tracks_data.each_with_index do |track, i|
-      if track["file"]
-        `wget '#{track["file"].values.first}'\
+      track_url = track["file"].values.first if track.has_key? "file"
+      if track_url
+        # Some albums are like this...
+        if track_url =~ %r{\A//.*\z}
+          track_url = "http:" << track["file"].values.first
+        end
+        `wget '#{track_url}'\
           -O #{Shellwords.shellescape local_song_filenames[i]}`
       else
         end_results <<
