@@ -6,6 +6,7 @@ require 'fileutils'
 require 'pathname'
 require 'json'
 require 'shellwords'
+require 'nokogiri'
 
 require 'colorize'
 
@@ -24,6 +25,7 @@ end_results = []
 ARGV.each do |this_bandcamp_album_url|
 
   response = Net::HTTP.get(URI(this_bandcamp_album_url))
+  nokogiri_document = Nokogiri::HTML(response)
 
   tracks_data =
     JSON.parse response.lines.select { |line|
@@ -42,12 +44,10 @@ ARGV.each do |this_bandcamp_album_url|
       )
     }
 
-  response[/BandData = (\{[^\}]*\})/m]
-  artist = clean_illegal(JSON.parse($1.gsub(/([\w]+):/, '"\1":'))["name"])
+  artist = nokogiri_document.css("span[itemprop=byArtist]").text.strip
 
-  # This one's shaky.
-  response[/<title>(.*)\s*\|.*<\/title>/]
-  album_title = clean_illegal($1.strip)
+  raw_album_title = nokogiri_document.css("title").text
+  album_title = clean_illegal(raw_album_title.split(/\s*\|\s*/).first)
 
   response[/artFullsizeUrl: "(.*?)"/]
   album_art_url = $1
