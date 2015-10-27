@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'shellwords'
+require 'colorize'
+
+zip_filename = ARGV[0]
+directory = ARGV[1]
+
+FileUtils.mkdir_p directory
+
+unless File.exist? zip_filename
+  puts(("skipping " << zip_filename + "; file does not exist").yellow)
+  exit
+end
+
+`unzip -n #{Shellwords.shellescape zip_filename} -d #{Shellwords.shellescape directory}`
+
+# Save a raw FLAC version
+FileUtils.copy_entry directory, (directory + " (FLAC)")
+
+# Make an encoded version
+`album-to-mp4a #{Shellwords.shellescape directory}`
+
+song_count = 0
+Dir.chdir directory + " (FLAC)" do
+  song_count = Dir["*.flac"].length
+  Dir["*.flac"].each do |song|
+    FileUtils.mv song, song.match(/\A.* - (\d{2} .*\z)/)[1]
+  end
+end
+
+it_worked = false
+Dir.chdir directory do
+  it_worked = (Dir["*.m4a"].length == song_count)
+  if it_worked
+    `deploy-web-player`
+    Dir["*.m4a"].each do |song|
+      FileUtils.mv song, song.match(/\A.* - (\d{2} .*\z)/)[1]
+    end
+  end
+end
+
+if it_worked
+  FileUtils.rm zip_filename
+end
+
