@@ -10,7 +10,7 @@ require 'nokogiri'
 
 require 'colorize'
 
-require_relative '../lib/terminal_formatting'
+require_relative '../../lib/terminal_formatting'
 
 def clean_illegal(string)
   return nil unless string
