@@ -1,0 +1,17 @@
+#!/usr/bin/ruby
+require 'socket'
+begin
+  addr = ['<broadcast>', 9]
+  UDPSock = UDPSocket.new
+  UDPSock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
+  data = "\xFF\xFF\xFF\xFF\xFF\xFF"
+  arr = ARGV[0].split(':')
+  16.times do |i|
+   data<< arr[0].hex.chr+arr[1].hex.chr+arr[2].hex.chr+arr[3].hex.chr+arr[4].hex.chr+arr[5].hex.chr
+  end
+  puts("Wake-On-Lan packet sent to MAC address "+ARGV[0])
+  UDPSock.send(data, 0, addr[0], addr[1])
+rescue
+  puts("usage: sample_wol.rb <mac-address>")
+  puts("       sample_wol.rb 01:02:03:04:05:06")
+end

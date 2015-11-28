@@ -79,7 +79,7 @@ ARGV.each do |album|
       avconv_successful = system(
         "/home/tom/software/libav/avconv \
         -i #{Shellwords.shellescape song} \
-        -c:a libfdk_aac -vbr 4 \
+        -c:a libfdk_aac -vbr 5 \
         -vn BEING_CONVERTED_#{Shellwords.shellescape song.sub(/.(m4a|flac)\z/, '.m4a')}")
     end
 

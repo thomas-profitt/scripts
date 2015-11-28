@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
-ssh -L 5900:localhost:5900 tom@owlbear
+exec %Q{ssh -L 5900:localhost:5900 #{ARGV.join("\n")} tom@owlbear}
