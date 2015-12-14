@@ -96,7 +96,7 @@ album_pods.each do |pod|
   FileUtils.mkpath local_album_dir
 
   Dir.chdir local_album_dir do
-    `wget '#{album_art_url}' -O .cover#{File.extname album_art_url}`
+    `wget '#{album_art_url}' -O cover#{File.extname album_art_url}`
     `ln -s /home/tom/Music/web-player.php index.php`
 
     tracks_data.each_with_index do |track, i|

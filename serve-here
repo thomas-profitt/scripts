@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'webrick'
-require 'socket'
 require 'optparse'
 require 'resolv'
 require 'colorize'
@@ -11,15 +10,7 @@ Process.setproctitle "serve-here"
 
 
 # BEGIN options ****************************************************************
-default_bind_address =
-  Socket.ip_address_list.
-  map(&:ip_address).
-  select { |addr|
-    addr =~ /192\.168\.*\.*/ or
-    addr =~ /10\.*\.*\.*/ or
-    addr =~ /172\.( 1[6-9] | 2\d | 3[0-1] )\.*\.*/x
-  }.
-  first
+default_bind_address = "0.0.0.0"
 
 default_document_root = Dir.pwd
 
