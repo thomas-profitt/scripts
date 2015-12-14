@@ -9,9 +9,8 @@ require 'optparse'
 
 user = "tom"
 host = "owlbear"
-root_path = Pathname.new("/home/#{user}/.porn").cleanpath
-subdirectory = Pathname.new("Unsorted").cleanpath
-# nothing can clean these paths
+root_path = Pathname.new("~").cleanpath
+subdirectory = Pathname.new("Downloads").cleanpath
 
 # BEGIN options ****************************************************************
 OptionParser.new do |opts|
