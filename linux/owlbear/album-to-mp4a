@@ -30,6 +30,13 @@ def has_only_flac_music(album_path)
   end
 end
 
+def has_only_wav_music(album_path)
+  Dir.chdir album_path do
+    return false if Dir["*.wav"].empty?
+    return true
+  end
+end
+
 def tarball_contains_all_music(tarball_path)
   m4as_here = FileList["*.{m4a,flac}"].exclude("BEING_CONVERTED_*").each.to_a
 
@@ -50,7 +57,8 @@ end
 ARGV.each do |album|
   album = Pathname.new(album).cleanpath
   unless Dir.exist?(album) &&
-  (has_itunes_music(album) || has_only_flac_music(album))
+  (has_itunes_music(album) || has_only_flac_music(album) ||
+  has_only_wav_music(album))
     puts ("%-73s" % album.to_s + "ignored").yellow
     next
   end
@@ -71,26 +79,26 @@ ARGV.each do |album|
         FileUtils.rm tarball_path
       end
     end
-    `tar -cvf #{tarball_path_shell} #{FileList["*.{m4a,flac}"].exclude("BEING_CONVERTED_*").map { |fn| Shellwords.shellescape fn }.join(" ")}`
+    `tar -cvf #{tarball_path_shell} #{FileList["*.{m4a,flac,wav}"].exclude("BEING_CONVERTED_*").map { |fn| Shellwords.shellescape fn }.join(" ")}`
 
     avconv_successful = false
     # Convert each song not being converted
-    FileList["*.{m4a,flac}"].exclude("BEING_CONVERTED_*").each do |song|
+    FileList["*.{m4a,flac,wav}"].exclude("BEING_CONVERTED_*").each do |song|
       avconv_successful = system(
         "/home/tom/software/libav/avconv \
         -i #{Shellwords.shellescape song} \
         -c:a libfdk_aac -vbr 5 \
-        -vn BEING_CONVERTED_#{Shellwords.shellescape song.sub(/.(m4a|flac)\z/, '.m4a')}")
+        -vn BEING_CONVERTED_#{Shellwords.shellescape song.sub(/.(m4a|flac|wav)\z/, '.m4a')}")
     end
 
     if avconv_successful
       # Delete the original songs
-      FileList["*.{m4a,flac}"].exclude("BEING_CONVERTED_*").each do |song|
+      FileList["*.{m4a,flac,wav}"].exclude("BEING_CONVERTED_*").each do |song|
         FileUtils.rm song
       end
 
       # Rename the new songs to the names of the originals
-      FileList["*.{m4a,flac}"].each do |song|
+      FileList["*.{m4a,flac,wav}"].each do |song|
         FileUtils.mv song, song.gsub(/BEING_CONVERTED_/, "")
       end
     end
