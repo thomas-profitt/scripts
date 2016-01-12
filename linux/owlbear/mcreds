@@ -7,11 +7,11 @@ mapper_file_basename = "creds"
 mapper_file = "/dev/mapper/" << mapper_file_basename
 
 unless File.exists? mapper_file
-  %x{cryptsetup open #{device_file} #{mapper_file_basename}}
+  %x{sudo cryptsetup open #{device_file} #{mapper_file_basename}}
 end
 
 if File.exists? mapper_file
-  %x{mount #{mapper_file} /home/tom/creds}
+  %x{sudo mount #{mapper_file} /home/tom/creds}
 else
   abort
 end

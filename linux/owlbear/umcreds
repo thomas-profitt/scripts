@@ -1,11 +1,10 @@
 #!/usr/bin/env ruby
 
-
 mapper_file_basename = "creds"
 mapper_file = "/dev/mapper/" << mapper_file_basename
 
-%x{umount /home/tom/creds}
+%x{sudo umount /home/tom/creds}
 
 if File.exists? mapper_file
-  %x{cryptsetup close #{mapper_file_basename}}
+  %x{sudo cryptsetup close #{mapper_file_basename}}
 end
