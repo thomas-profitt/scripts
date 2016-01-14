@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'active_support/core_ext/numeric/time'
+
+
+options = {
+  meal_count: 2,
+  start_hours: 9.5
+}
+
+OptionParser.new do |opts|
+
+  opts.banner =
+    ["Usage: whenmeal [options]",
+    "Tells you when to eat each of your meals, given the options"].
+    join("\n")
+
+  opts.on("-m MEALS_COUNT", OptionParser::DecimalInteger,
+  "eg. 1, 2, 3 " <<
+  "(default: #{options[:meal_count]})") do |m|
+    options[:meal_count] = m
+  end
+
+  opts.on("-s START_HOURS",
+  OptionParser::DecimalNumeric,
+  ("eg. 7 (7:00), 8.25 (8:15)" +
+  " (default: #{options[:start_hours]})")) do |s|
+    options[:start_hours] = s
+  end
+
+  opts.on("-f FINISH_HOURS",
+  OptionParser::DecimalNumeric,
+  "eg. 25 (1:00), 11.75 (11:45)" <<
+  " (default: START_HOURS + 16)") do |f|
+    options[:finish_hours] = f
+  end
+
+end.parse!
+
+options[:finish_hours] ||= options[:start_hours] + 16.0
+
+hours_in_day = options[:finish_hours] - options[:start_hours]
+dividend = (options[:meal_count] + 1)
+hours_between_meals = hours_in_day / dividend
+
+current_hours = options[:start_hours]
+options[:meal_count].times do |meal_index|
+  meal_number = meal_index + 1
+  current_hours += hours_between_meals
+  current_time = Time.new(0) + current_hours.hours
+  puts "Meal ##{meal_number}: #{current_time.strftime("%H:%M")} (#{current_time.strftime("%I:%M %p")})"
+end
