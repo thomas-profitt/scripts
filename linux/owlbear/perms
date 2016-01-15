@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# This script is used to correct incorrect permissions in locations with
+# predictable permissions.
+
+# ~/creds
+find ~/creds -type f -exec chown tom:tom "{}" \; &&\
+find ~/creds -type d -exec chown tom:tom "{}" \; &&\
+find ~/creds -type f -exec chmod 0600 "{}" \; &&\
+find ~/creds -type d -exec chmod 0700 "{}" \;
