@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-default_device_file = "/dev/sdh1"
+default_device_file = "~/creds_luks"
 
 device_file = ARGV[0] || default_device_file
 mapper_file_basename = "creds"
