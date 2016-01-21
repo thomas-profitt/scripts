@@ -1,7 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
-killall Finder
+is_a_mac = !!(/darwin/ =~ RUBY_PLATFORM)
 
-sudo \
-  find / -name .DS_Store -type f -delete && \
-  killall Finder
+what_to_run = []
+what_to_run << "killall Finder" if is_a_mac
+what_to_run << "find / -name .DS_Store -type f -delete"
+what_to_run << 'find / -name "._*" -type f -delete' unless is_a_mac
+what_to_run << "killall Finder"
+what_to_run = ("sudo " << what_to_run.join(" && "))
+
+exec what_to_run
