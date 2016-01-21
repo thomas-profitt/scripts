@@ -4,9 +4,12 @@ require 'optparse'
 require 'active_support/core_ext/numeric/time'
 
 
+default_start_hours = 8
+default_finish_hours = default_start_hours + 16
 options = {
-  meal_count: 2,
-  start_hours: 9.5
+  meal_count: 3,
+  start_hours: default_start_hours,
+  finish_hours: default_finish_hours
 }
 
 OptionParser.new do |opts|
@@ -38,8 +41,6 @@ OptionParser.new do |opts|
 
 end.parse!
 
-options[:finish_hours] ||= options[:start_hours] + 16.0
-
 hours_in_day = options[:finish_hours] - options[:start_hours]
 dividend = (options[:meal_count] + 1)
 hours_between_meals = hours_in_day / dividend
@@ -49,5 +50,6 @@ options[:meal_count].times do |meal_index|
   meal_number = meal_index + 1
   current_hours += hours_between_meals
   current_time = Time.new(0) + current_hours.hours
-  puts "Meal ##{meal_number}: #{current_time.strftime("%H:%M")} (#{current_time.strftime("%I:%M %p")})"
+  puts "Meal ##{meal_number}: #{current_time.strftime("%H:%M")} " <<
+    "(#{current_time.strftime("%I:%M %p")}, #{current_hours.round(2)})"
 end
