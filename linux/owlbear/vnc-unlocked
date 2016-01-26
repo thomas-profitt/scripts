@@ -1,0 +1,3 @@
+#!/bin/bash
+
+x11vnc -listen localhost -solid black -httpport 5900
