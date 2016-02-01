@@ -1,0 +1,3 @@
+remove Lock = Control_R
+keysym Control_R = Menu
+remove Lock = Control_R
