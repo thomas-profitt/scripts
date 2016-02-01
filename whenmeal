@@ -43,7 +43,7 @@ end.parse!
 
 hours_in_day = options[:finish_hours] - options[:start_hours]
 dividend = (options[:meal_count] + 1)
-hours_between_meals = hours_in_day / dividend
+hours_between_meals = hours_in_day / dividend.to_f
 
 current_hours = options[:start_hours]
 options[:meal_count].times do |meal_index|
