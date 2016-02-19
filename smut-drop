@@ -30,12 +30,12 @@ OptionParser.new do |opts|
   end
 
   opts.on("-r ROOT_PATH", "--root-path ROOT_PATH",
-  "The porn directory's root (default: /home/USER/.porn)") do |p|
+  "The directory's root (default: /home/USER/)") do |p|
     root_path = Pathname.new(p).cleanpath
   end
 
   opts.on("-s SUBDIRECTORY", "--subdirectory SUBDIRECTORY",
-  "ROOT_PATH's subdirectory to move to (default: Unsorted)") do |s|
+  "ROOT_PATH's subdirectory to move to (default: Downloads)") do |s|
     subdirectory = Pathname.new(s).cleanpath
   end
 
