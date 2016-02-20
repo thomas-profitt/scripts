@@ -8,3 +8,9 @@ find ~/creds -type f -exec chown tom:tom "{}" \; &&\
 find ~/creds -type d -exec chown tom:tom "{}" \; &&\
 find ~/creds -type f -exec chmod 0600 "{}" \; &&\
 find ~/creds -type d -exec chmod 0700 "{}" \;
+
+# ~/.porn
+find ~/.porn -type f -exec chown tom:www-deploy "{}" \; &&\
+find ~/.porn -type d -exec chown tom:www-deploy "{}" \; &&\
+find ~/.porn -type f -exec chmod 0660 "{}" \; &&\
+find ~/.porn -type d -exec chmod 0770 "{}" \;
