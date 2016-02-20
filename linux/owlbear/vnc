@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+session_index = ARGV[1] || 0
+session_index = session_index.to_i.to_s
+
+exec %Q{sudo x11vnc -listen localhost -solid black -httpport 5900 } +
+  %Q{-display :#{session_index} -auth /var/run/lightdm/root/:#{session_index}}
+

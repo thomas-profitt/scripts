@@ -1,3 +1,0 @@
-#!/bin/bash
-
-sudo x11vnc -listen localhost -solid black -httpport 5900 -display :1 -auth /var/run/lightdm/root/:1
