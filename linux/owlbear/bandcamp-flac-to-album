@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
-require 'shellwords'
 require 'colorize'
 
 zip_filename = ARGV[0]
@@ -14,13 +13,13 @@ unless File.exist? zip_filename
   exit
 end
 
-`unzip -n #{Shellwords.shellescape zip_filename} -d #{Shellwords.shellescape directory}`
+`unzip -n #{zip_filename} -d #{directory}`
 
 # Save a raw FLAC version
 FileUtils.copy_entry directory, (directory + " (FLAC)")
 
 # Make an encoded version
-`album-to-mp4a #{Shellwords.shellescape directory}`
+`album-to-mp4a #{directory}`
 
 song_count = 0
 Dir.chdir directory + " (FLAC)" do
