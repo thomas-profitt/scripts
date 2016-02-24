@@ -23,7 +23,9 @@ harvest = Harvest.client(
 )
 
 def show(harvest)
-  harvest.time.all.each do |time|
+  print "Fetching today's Harvest time entries..."
+  harvest.time.all.each_with_index do |time, i|
+    print "\r" if i == 0
     puts left_and_right(time.project, "#{time.hours} hours").black.on_white
     if time.notes.respond_to? :lines
       time.notes.lines.each do |line|
@@ -37,37 +39,47 @@ if ARGV.length == 0
   # just show harvest, called below
 elsif ARGV.length == 1 && projects_and_ids[ARGV[0]]
   project = ARGV[0].downcase
+  print "Fetching Harvest time entry..."
   time_entry =
     harvest.time.all.
     select { |t| t.project_id.to_i == projects_and_ids[project]["harvest"] }.
     first
+  print "\r"
   temp_notes = Tempfile.new('pivharv_notes')
   File.write(temp_notes, time_entry.notes)
   temp_notes.rewind
   system "$EDITOR #{temp_notes.path}"
   updated_time_entry = time_entry.update({"notes" => File.read(temp_notes)})
+  print "Updating Harvest time entry..."
   harvest.time.update(updated_time_entry)
+  print "\r"
   temp_notes.close
   temp_notes.unlink
 elsif ARGV.length == 3
   project = ARGV[0].downcase
   action = ARGV[1].upcase
   story_id = ARGV[2]
+  print "Hitting Pivotal Tracker API..."
   story = PivotalTracker::Story.find(
     story_id,
     projects_and_ids[project]["pivotal_tracker"])
+  print "\r"
   harvest_line =
     %Q{#{action} [#{story.story_type[0].upcase}] } +
     %Q{[#{story_id}] #{story.name}}
+  print "Fetching Harvest time entry..."
   time_entry =
     harvest.time.all.
     select { |t| t.project_id.to_i == projects_and_ids[project]["harvest"] }.
     first
   time_entry.notes ||= ""
+  print "\r"
+  print "Updating Harvest time entry..."
   updated_time_entry = time_entry.update(
     {"notes" => (time_entry.notes.lines.map(&:rstrip) <<
       harvest_line).join("\n")})
   harvest.time.update(updated_time_entry)
+  print "\r"
 else
   puts "Bad input"
   exit
