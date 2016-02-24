@@ -34,7 +34,7 @@ def show(harvest)
 end
 
 if ARGV.length == 0
-  show harvest
+  # just show harvest, called below
 elsif ARGV.length == 1 && projects_and_ids[ARGV[0]]
   project = ARGV[0].downcase
   time_entry =
@@ -68,8 +68,9 @@ elsif ARGV.length == 3
     {"notes" => (time_entry.notes.lines.map(&:rstrip) <<
       harvest_line).join("\n")})
   harvest.time.update(updated_time_entry)
-
-  show harvest
 else
   puts "Bad input"
+  exit
 end
+
+show harvest
