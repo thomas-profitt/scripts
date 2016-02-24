@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+
+require 'tempfile'
+require 'shellwords'
+require 'rubygems'
+# harvested cannot be required without these 2 required.
+require 'bundler/setup'
+require 'dotenv'
+require 'pivotal-tracker'
+require 'harvested'
+require 'colorize'
+require_relative 'config/pivharv/projects_and_ids'
+require_relative 'lib/terminal_formatting'
+
+Dotenv.load
+
+PivotalTracker::Client.token = ENV["PIVOTAL_TRACKER_API_TOKEN"]
+PivotalTracker::Client.timeout = 50
+harvest = Harvest.client(
+  subdomain: ENV["HARVEST_SUBDOMAIN"],
+  username: ENV["HARVEST_USERNAME"],
+  password: ENV["HARVEST_PASSWORD"]
+)
+
+def show(harvest)
+  harvest.time.all.each do |time|
+    puts left_and_right(time.project, "#{time.hours} hours").black.on_white
+    if time.notes.respond_to? :lines
+      time.notes.lines.each do |line|
+        puts "    " << line
+      end
+    end
+  end
+end
+
+if ARGV.length == 0
+  show harvest
+elsif ARGV.length == 1 && projects_and_ids[ARGV[0]]
+  project = ARGV[0].downcase
+  time_entry =
+    harvest.time.all.
+    select { |t| t.project_id.to_i == projects_and_ids[project]["harvest"] }.
+    first
+  temp_notes = Tempfile.new('pivharv_notes')
+  File.write(temp_notes, time_entry.notes)
+  temp_notes.rewind
+  system "$EDITOR #{temp_notes.path}"
+  updated_time_entry = time_entry.update({"notes" => File.read(temp_notes)})
+  harvest.time.update(updated_time_entry)
+  temp_notes.close
+  temp_notes.unlink
+elsif ARGV.length == 3
+  project = ARGV[0].downcase
+  action = ARGV[1].upcase
+  story_id = ARGV[2]
+  story = PivotalTracker::Story.find(
+    story_id,
+    projects_and_ids[project]["pivotal_tracker"])
+  harvest_line =
+    %Q{#{action} [#{story.story_type[0].upcase}] } +
+    %Q{[#{story_id}] #{story.name}}
+  time_entry =
+    harvest.time.all.
+    select { |t| t.project_id.to_i == projects_and_ids[project]["harvest"] }.
+    first
+  time_entry.notes ||= ""
+  updated_time_entry = time_entry.update(
+    {"notes" => (time_entry.notes.lines.map(&:rstrip) <<
+      harvest_line).join("\n")})
+  harvest.time.update(updated_time_entry)
+
+  show harvest
+else
+  puts "Bad input"
+end

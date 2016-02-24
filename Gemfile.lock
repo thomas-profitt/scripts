@@ -7,13 +7,51 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    builder (3.2.2)
     colorize (0.7.7)
+    crack (0.4.3)
+      safe_yaml (~> 1.0.0)
+    domain_name (0.5.20160128)
+      unf (>= 0.0.5, < 1.0.0)
+    dotenv (2.1.0)
+    harvested (3.1.1)
+      hashie
+      httparty
+      json
+    hashie (3.4.3)
+    http-cookie (1.0.2)
+      domain_name (~> 0.5)
+    httparty (0.13.7)
+      json (~> 1.8)
+      multi_xml (>= 0.5.2)
     i18n (0.7.0)
     json (1.8.3)
+    mime-types (2.99.1)
+    mini_portile2 (2.0.0)
     minitest (5.8.1)
+    multi_xml (0.5.5)
+    netrc (0.11.0)
+    nokogiri (1.6.7.2)
+      mini_portile2 (~> 2.0.0.rc2)
+    nokogiri-happymapper (0.5.9)
+      nokogiri (~> 1.5)
+    pivotal-tracker (0.5.13)
+      builder
+      crack
+      nokogiri (>= 1.5.5)
+      nokogiri-happymapper (>= 0.5.4)
+      rest-client (>= 1.8.0)
+    rest-client (1.8.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
+    safe_yaml (1.0.4)
     thread_safe (0.3.5)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.7.2)
     vmstat (2.1.0)
 
 PLATFORMS
@@ -22,6 +60,9 @@ PLATFORMS
 DEPENDENCIES
   activesupport
   colorize
+  dotenv
+  harvested
+  pivotal-tracker
   vmstat
 
 BUNDLED WITH
