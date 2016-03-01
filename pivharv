@@ -79,7 +79,7 @@ elsif ARGV.length == 3
     new_notes = time_entry.notes
     new_notes_line_to_replace =
       new_notes.lines.select { |l| l.include? "[#{story_id}]" }.first
-    new_notes.sub! new_notes_line_to_replace, harvest_line
+    new_notes.sub! new_notes_line_to_replace, (harvest_line + "\n")
     updated_time_entry = time_entry.update(notes: new_notes)
   else
     updated_time_entry = time_entry.update(
