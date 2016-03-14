@@ -1,16 +1,20 @@
 #!/usr/bin/env ruby
 
+Dir.chdir(File.dirname(__FILE__)) do
+
 require 'tempfile'
 require 'shellwords'
 require 'rubygems'
-# harvested cannot be required without these 2 required.
-require 'bundler/setup'
+require 'optparse'
+require 'date'
+require 'bundler/setup' # So we can require (bugged) harvested
 require 'dotenv'
 require 'pivotal-tracker'
 require 'harvested'
 require 'colorize'
 require_relative 'config/pivharv/projects_and_ids'
 require_relative 'lib/terminal_formatting'
+################################################################################
 
 Dotenv.load
 
@@ -21,19 +25,46 @@ harvest = Harvest.client(
   username: ENV["HARVEST_USERNAME"],
   password: ENV["HARVEST_PASSWORD"]
 )
+################################################################################
+
+@options = {
+  days_index: 0
+}
+################################################################################
 
 def show(harvest)
   print "Fetching today's Harvest time entries..."
-  harvest.time.all.each_with_index do |time, i|
-    print "\r" if i == 0
-    puts left_and_right(time.project, "#{time.hours} hours").black.on_white
-    if time.notes.respond_to? :lines
-      time.notes.lines.each do |line|
-        puts "    " << line
+  harvest_time = harvest.time.all(Date.today + @options[:days_index])
+  if harvest_time.count > 0
+    harvest_time.each_with_index do |time, i|
+      print "\r" if i == 0
+      puts left_and_right("#{time.project} (#{time.project_id})",
+        "#{time.hours} hours").black.on_white
+      if time.notes.respond_to? :lines
+        time.notes.lines.each do |line|
+          puts "    " << line
+        end
       end
     end
+  else
+    print "\r"
+    puts "No time today"
   end
 end
+################################################################################
+
+OptionParser.new do |opts|
+
+  opts.banner = "TODO"
+
+  opts.on("-d DAYS_INDEX", OptionParser::DecimalInteger,
+  "eg. 1, 2, -1 " <<
+  "(default: #{@options[:days_index]})") do |d|
+    @options[:days_index] = d
+  end
+
+end.parse!
+################################################################################
 
 if ARGV.length == 0
   # just show harvest, called below
@@ -41,7 +72,7 @@ elsif ARGV.length == 1 && projects_and_ids[ARGV[0]]
   project = ARGV[0].downcase
   print "Fetching Harvest time entry..."
   time_entry =
-    harvest.time.all.
+    harvest.time.all(Date.today + @options[:days_index]).
     select { |t| t.project_id.to_i == projects_and_ids[project]["harvest"] }.
     first
   print "\r"
@@ -69,7 +100,7 @@ elsif ARGV.length == 3
     %Q{[#{story_id}] #{story.name}}
   print "Fetching Harvest time entry..."
   time_entry =
-    harvest.time.all.
+    harvest.time.all(Date.today + @options[:days_index]).
     select { |t| t.project_id.to_i == projects_and_ids[project]["harvest"] }.
     first
   time_entry.notes ||= ""
@@ -94,3 +125,4 @@ else
 end
 
 show harvest
+end
