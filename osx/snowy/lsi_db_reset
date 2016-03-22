@@ -1,7 +1,7 @@
 #!/bin/sh
 
-dropdb lsistreaming_dev &&\
-dropdb lsistreaming_production &&\
-createdb lsistreaming_production &&\
-pg_restore --no-acl --no-owner -d lsistreaming_production ~/software/twin_engine/lsi_streaming/db/latest.dump &&\
+dropdb lsistreaming_dev
+dropdb lsistreaming_production
+createdb lsistreaming_production
+pg_restore --no-acl --no-owner -d lsistreaming_production ~/software/twin_engine/lsi_streaming/db/latest.dump
 createdb lsistreaming_dev --template=lsistreaming_production
