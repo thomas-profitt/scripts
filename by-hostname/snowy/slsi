@@ -13,4 +13,4 @@ else
   subdomain = ARGV[0]
 end
 
-exec "ssh -i ~/.ssh/aws-lsi-streaming/TwinEngine root@#{subdomain}.livingscriptures.com"
+exec "ssh root@#{subdomain}.livingscriptures.com"
