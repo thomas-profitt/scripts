@@ -6,7 +6,7 @@ require 'fileutils'
 require 'colorize'
 require 'rake'
 
-require_relative '../../lib/terminal_formatting'
+require_relative '../../../../lib/terminal_formatting'
 
 def has_itunes_music(album_path)
   Dir.chdir album_path do
