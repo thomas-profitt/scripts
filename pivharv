@@ -80,10 +80,12 @@ Dir.chdir(File.dirname(__FILE__)) do
     File.write(temp_notes, time_entry.notes)
     temp_notes.rewind
     system "$EDITOR #{temp_notes.path}"
-    updated_time_entry = time_entry.update({"notes" => File.read(temp_notes)})
-    print "Updating Harvest time entry..."
-    harvest.time.update(updated_time_entry)
-    print "\r"
+    if File.read(temp_notes) != time_entry.notes
+      updated_time_entry = time_entry.update({"notes" => File.read(temp_notes)})
+      print "Changes made; updating Harvest time entry..."
+      print "\r"
+      harvest.time.update(updated_time_entry)
+    end
     temp_notes.close
     temp_notes.unlink
   elsif ARGV.length == 3
