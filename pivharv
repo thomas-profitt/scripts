@@ -12,7 +12,7 @@ Dir.chdir(File.dirname(__FILE__)) do
   require 'pivotal-tracker'
   require 'harvested'
   require 'colorize'
-  require_relative 'config/pivharv/projects_and_ids'
+  require_relative 'config/pivharv/projects'
   require_relative 'lib/terminal_formatting'
   ##############################################################################
 
@@ -68,12 +68,12 @@ Dir.chdir(File.dirname(__FILE__)) do
 
   if ARGV.length == 0
     # just show harvest, called below
-  elsif ARGV.length == 1 && projects_and_ids[ARGV[0]]
+  elsif ARGV.length == 1 && projects[ARGV[0]]
     project = ARGV[0].downcase
     print "Fetching Harvest time entry..."
     time_entry =
       harvest.time.all(Date.today + @options[:days_index]).
-      select { |t| t.project_id.to_i == projects_and_ids[project]["harvest"] }.
+      select { |t| t.project_id.to_i == projects[project]["harvest_id"] }.
       first
     print "\r"
     temp_notes = Tempfile.new('pivharv_notes')
@@ -91,11 +91,15 @@ Dir.chdir(File.dirname(__FILE__)) do
   elsif ARGV.length == 3
     project = ARGV[0].downcase
     action = ARGV[1].upcase
-    story_id = ARGV[2]
+    story_id = ARGV[2].gsub(/\D/, '')
     print "Hitting Pivotal Tracker API..."
+    if projects[project]["pivotal_tracker_api_token"]
+      PivotalTracker::Client.token =
+        projects[project]["pivotal_tracker_api_token"]
+    end
     story = PivotalTracker::Story.find(
       story_id,
-      projects_and_ids[project]["pivotal_tracker"])
+      projects[project]["pivotal_tracker_id"])
     print "\r"
     harvest_line =
       %Q{#{action} [#{story.story_type[0].upcase}] } +
@@ -103,7 +107,7 @@ Dir.chdir(File.dirname(__FILE__)) do
     print "Fetching Harvest time entry..."
     time_entry =
       harvest.time.all(Date.today + @options[:days_index]).
-      select { |t| t.project_id.to_i == projects_and_ids[project]["harvest"] }.
+      select { |t| t.project_id.to_i == projects[project]["harvest_id"] }.
       first
     time_entry.notes ||= ""
     print "\r"
