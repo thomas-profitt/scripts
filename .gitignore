@@ -4,3 +4,4 @@
 *.swn
 shortcuts
 .env
+config/pivharv/projects.rb
