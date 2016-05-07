@@ -1,0 +1,16 @@
+#!/bin/bash
+
+xrandr --output HDMI1\
+  --mode 1920x1080\
+  --left-of eDP1\
+  --scale 1.25x1.25
+
+xrandr --output HDMI2\
+  --mode 1920x1080\
+  --right-of eDP1\
+  --scale 1.25x1.25
+
+xrandr --output HDMI3\
+  --mode 1920x1080\
+  --right-of eDP1
+
