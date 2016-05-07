@@ -63,6 +63,10 @@ Dir.chdir(File.dirname(__FILE__)) do
       @options[:days_index] = d
     end
 
+    opts.on("--yesterday") do |yesterday|
+      @options[:days_index] = -1
+    end
+
   end.parse!
   ##############################################################################
 
