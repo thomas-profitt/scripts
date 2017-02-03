@@ -2,24 +2,25 @@
 
 require 'fileutils'
 require 'colorize'
+require 'shellwords'
 
 zip_filename = ARGV[0]
 directory = ARGV[1]
-
-FileUtils.mkdir_p directory
 
 unless File.exist? zip_filename
   puts(("skipping " << zip_filename + "; file does not exist").yellow)
   exit
 end
 
-`unzip -n #{zip_filename} -d #{directory}`
+FileUtils.mkdir_p directory
+
+`unzip -n #{Shellwords.shellescape zip_filename} -d #{Shellwords.shellescape directory}`
 
 # Save a raw FLAC version
 FileUtils.copy_entry directory, (directory + " (FLAC)")
 
 # Make an encoded version
-`album-to-mp4a #{directory}`
+`album-to-mp4a #{Shellwords.shellescape directory}`
 
 song_count = 0
 Dir.chdir directory + " (FLAC)" do
