@@ -63,6 +63,10 @@ OptionParser.new do |opts|
     history_filenames << (Dir.home << "/.pry_history")
   end
 
+  opts.on("-f", "--file FILE", "Search FILE") do |f|
+    history_filenames = [f]
+  end
+
 end.parse!
 
 if ARGV.empty? || ARGV[0].empty?
